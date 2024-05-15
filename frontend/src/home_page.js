@@ -1,26 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function HomePage() {
-    const [message, setMessage] = useState('');
+  const [pageTitle, setPageTitle] = useState("");
 
-    useEffect(() => {
-        axios.get('http://localhost:8000/api/')
-            .then(response => {
-                setMessage(response.data.message);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    }, []);
+  useEffect(() => {
+    axios
+      .get("http://localhost:8000/api/")
+      .then((response) => {
+        setPageTitle(response.data.page_title);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
-    return (
-        <div>
-            <h1>{message}</h1>
-        </div>
-    );
+  return (
+    <div class="main-container">
+      <div className="main-title">{pageTitle}</div>
+    </div>
+  );
 }
-
 
 export default HomePage;
