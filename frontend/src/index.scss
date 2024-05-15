@@ -1,98 +1,148 @@
-$background-color: #2e2e3e;
-$sidebar-color: #20202b;
-$main-color: #981521;
+$color-one: #2e2e3e;
+$color-two: #981521;
+$color-three: #262635;
+
+$background-color: $color-one;
+$sidebar-color: $color-two;
 
 * {
   margin: 0;
   padding: 0;
+  text-decoration: none;
+  list-style: none;
 }
 
 body {
   background: $background-color;
 }
 
-.buttton_style {
+.shadow_style {
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
+.button_style {
+  @extend .shadow_style;
   padding: 12px 20px;
   border-radius: 8px;
-  border: 1px solid #fff;
-  background: $main-color;
+  background: $color-two;
+  border: none;
   color: #fff;
 
   &:hover {
-    background: lighten($main-color, 15);
-    transition: 0.2s ease-in-out;
+    background: lighten($color-two, 10);
+    transform: scale(1.03);
+    will-change: transform;
+  }
+
+  &.selected {
+    border: 1px solid #fff;
   }
 }
 
 .app {
-  height: 100dvh;
+  max-height: 100dvh;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar {
+  @extend .shadow_style;
+  height: 80px;
+  width: 100%;
+  background: $sidebar-color;
   display: flex;
 
-  .sidebar {
-    width: fit-content;
+  &-container {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+
+  &-side {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  * {
+    font-size: 1rem;
+  }
+
+  .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    color: #fff;
+  }
+
+  .button {
+    @extend .button_style;
+    border: 1px solid #fff;
+  }
+}
+
+.main {
+  height: calc(100dvh - 80px);
+  display: flex;
+
+  &-container {
+    flex: 1;
     padding: 20px;
-    background: $sidebar-color;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
 
-    * {
-      font-size: 1rem;
-    }
-
-    .logo {
-      font-size: 2rem;
-      font-weight: bold;
-      text-align: center;
-      color: #fff;
-    }
-
-    &-container {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    &-side {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-
-      .line {
-        border-bottom: 2px solid #fff;
-      }
-
-      &-level {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        padding: 20px 0;
-      }
-    }
+  &-choose {
+    display: flex;
+    gap: 20px;
 
     .button {
-      @extend .buttton_style;
+      @extend .button_style;
+      width: 300px;
     }
   }
 
-  .main {
+  &-panel {
+    width: 90%;
+    background: $color-three;
+    border: 1px solid #fff;
+    border-radius: 12px;
+    color: #fff;
     flex: 1;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    display: none;
 
-    &-container {
-      height: 100%;
+    &.active {
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 20px;
     }
 
-    &-title {
-      background: $sidebar-color;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 1.4rem;
-      color: #fff;
-      font-weight: bold;
+    &-buttons {
+      display: flex;
+      justify-content: space-evenly;
+      gap: 20px;
+      padding: 12px;
+
+      .button {
+        @extend .button_style;
+        flex: 1;
+      }
     }
+
+    &-function {
+      flex: 1;
+      margin: 12px;
+      border: 1px solid #fff;
+      border-radius: 12px;
+    }
+  }
+
+  * {
+    font-size: 1rem;
   }
 }

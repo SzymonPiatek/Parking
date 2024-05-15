@@ -1,11 +1,9 @@
-from django.shortcuts import render
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from reservations.models import ParkingSpot, ParkingSpotReservation
+from django.core.serializers import serialize
+from django.http import JsonResponse
+from reservations.models import ParkingSpot
 
 
-@api_view(['GET'])
-def home_page(request):
-    return Response({
-        "page_title" : "Strona główna"
-        })
+def parking_spots(request):
+    parking_spots = ParkingSpot.objects.all()
+    parking_spots_json = serialize('json', parking_spots)
+    return JsonResponse(parking_spots_json, safe=False)
