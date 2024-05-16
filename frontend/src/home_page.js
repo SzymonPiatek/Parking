@@ -5,6 +5,9 @@ function HomePage() {
   const [selectedButton, setSelectedButton] = useState("parking");
   const [selectedFunction, setSelectedFunction] = useState("list");
   const [parkingSpots, setParkingSpots] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL = "http://localhost:8000/api/parking_spots/";
 
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -13,6 +16,27 @@ function HomePage() {
   const handleFunctionClick = (buttonName) => {
     setSelectedFunction(buttonName);
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setParkingSpots(data);
+        setLoading(false);
+      } catch (error) {
+        setLoading(false);
+        throw new Error(error);
+      }
+    };
+
+    if (selectedButton === "parking" && selectedFunction === "list") {
+      fetchData();
+    }
+  });
 
   return (
     <div className="main-container">
@@ -93,11 +117,14 @@ function HomePage() {
             selectedFunction === "list" ? "active" : ""
           }`}
         >
-          <ul>
+          <div className="items-list">
             {parkingSpots.map((spot) => (
-              <li key={spot.id}>{spot.name}</li>
+              <div className="items-list-item" id={spot.id}>
+                {spot.name} -{" "}
+                {spot.description ? spot.description : "Brak informacji"}
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
       </div>
     </div>
