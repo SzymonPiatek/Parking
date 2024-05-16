@@ -141,15 +141,26 @@ body {
       border: 1px solid #fff;
       border-radius: 12px;
       overflow-y: auto;
+      display: none;
+
+      &.active {
+        display: flex;
+      }
 
       .items-list {
+        flex: 1;
         overflow-y: scroll;
-        display: flex;
         flex-direction: column;
+        display: none;
         gap: 8px;
         padding: 12px;
 
+        &.active {
+          display: flex;
+        }
+
         &-item {
+          @extend .shadow_style;
           background: $color-two;
           border-radius: 4px;
           padding: 12px 20px;
