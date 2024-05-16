@@ -6,8 +6,6 @@ function HomePage() {
   const [selectedFunction, setSelectedFunction] = useState("list");
   const [parkingSpots, setParkingSpots] = useState([]);
 
-  const API_URL = "http://localhost:3000/api/";
-
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
   };
