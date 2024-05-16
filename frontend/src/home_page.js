@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import Button from "./widgets";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faSquareParking } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEdit,
+  faSquareParking,
+  faCircleXmark,
+} from "@fortawesome/free-solid-svg-icons";
 
 function HomePage() {
   const [selectedButton, setSelectedButton] = useState("parking");
   const [selectedFunction, setSelectedFunction] = useState("list");
   const [parkingSpots, setParkingSpots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingSpot, setEditingSpot] = useState(null);
 
   const API_URL = "http://localhost:8000/api/parking_spots/";
 
@@ -17,6 +22,10 @@ function HomePage() {
 
   const handleFunctionClick = (buttonName) => {
     setSelectedFunction(buttonName);
+  };
+
+  const handleEditClick = (spot) => {
+    setEditingSpot(spot);
   };
 
   useEffect(() => {
@@ -43,6 +52,12 @@ function HomePage() {
   return (
     <div className="main-container">
       {/* #################### */}
+
+      {editingSpot && (
+        <div className="edit-panel active">
+          <EditParkingSpot spot={editingSpot} />
+        </div>
+      )}
 
       <div className="main-choose">
         <Button
@@ -92,7 +107,11 @@ function HomePage() {
             }`}
           >
             {parkingSpots.map((spot) => (
-              <ParkingItem spot={spot} />
+              <ParkingItem
+                spot={spot}
+                key={spot.id}
+                onEditClick={() => handleEditClick(spot)}
+              />
             ))}
           </div>
         </div>
@@ -101,17 +120,55 @@ function HomePage() {
   );
 }
 
-function ParkingItem({ spot }) {
+function EditParkingSpot({ spot }) {
+  const [description, setDescription] = useState(spot.description);
+  const isDescriptionUnchanged =
+    description === spot.description || description === "";
+
+  const handleDescriptionChange = (event) => {
+    setDescription(event.target.value);
+  };
+
   return (
-    <div className="items-list-item" key={spot.id}>
-      <div className="items-list-item-text">
-        <p>
-          <FontAwesomeIcon icon={faSquareParking} />
-        </p>
-        <p>{`${spot.name} - ${spot.description || "Brak informacji"}`}</p>
+    <div className="edit-panel-container">
+      <div className="edit-panel-title">
+        <p>Edytuj miejsce parkingowe</p>
+        <FontAwesomeIcon icon={faCircleXmark} />
       </div>
-      <div className="items-list-item-functions">
-        <div className="items-list-item-functions-function">
+      <form className="form">
+        <div className="form-label">
+          <p>Nazwa</p>
+          <input disabled value={spot.name} />
+        </div>
+        <div className="form-label">
+          <p>Opis</p>
+          <textarea
+            rows={5}
+            maxLength={100}
+            value={description}
+            onChange={handleDescriptionChange}
+          />
+        </div>
+        <Button className="button" disabled={isDescriptionUnchanged}>
+          Zapisz
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+function ParkingItem({ spot, onEditClick }) {
+  return (
+    <div className="item">
+      <div className="item-text">
+        <FontAwesomeIcon icon={faSquareParking} />
+        {`${spot.name}`}
+      </div>
+      <div className="item-text">
+        {`${spot.description || "Brak informacji"}`}
+      </div>
+      <div className="item-functions">
+        <div className="item-functions-function" onClick={onEditClick}>
           <FontAwesomeIcon icon={faEdit} /> Edytuj
         </div>
       </div>
