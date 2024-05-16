@@ -91,7 +91,14 @@ function HomePage() {
           >
             {parkingSpots.map((spot) => (
               <div className="items-list-item" key={spot.id}>
-                {`${spot.name} - ${spot.description || "Brak informacji"}`}
+                <div className="items-list-item-text">
+                  {`${spot.name} - ${spot.description || "Brak informacji"}`}
+                </div>
+                <div className="items-list-item-functions">
+                  <div className="items-list-item-functions-function">
+                    Edytuj
+                  </div>
+                </div>
               </div>
             ))}
           </div>
