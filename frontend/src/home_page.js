@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "./widgets";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faSquareParking } from "@fortawesome/free-solid-svg-icons";
 
 function HomePage() {
   const [selectedButton, setSelectedButton] = useState("parking");
@@ -90,18 +92,27 @@ function HomePage() {
             }`}
           >
             {parkingSpots.map((spot) => (
-              <div className="items-list-item" key={spot.id}>
-                <div className="items-list-item-text">
-                  {`${spot.name} - ${spot.description || "Brak informacji"}`}
-                </div>
-                <div className="items-list-item-functions">
-                  <div className="items-list-item-functions-function">
-                    Edytuj
-                  </div>
-                </div>
-              </div>
+              <ParkingItem spot={spot} />
             ))}
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ParkingItem({ spot }) {
+  return (
+    <div className="items-list-item" key={spot.id}>
+      <div className="items-list-item-text">
+        <p>
+          <FontAwesomeIcon icon={faSquareParking} />
+        </p>
+        <p>{`${spot.name} - ${spot.description || "Brak informacji"}`}</p>
+      </div>
+      <div className="items-list-item-functions">
+        <div className="items-list-item-functions-function">
+          <FontAwesomeIcon icon={faEdit} /> Edytuj
         </div>
       </div>
     </div>
