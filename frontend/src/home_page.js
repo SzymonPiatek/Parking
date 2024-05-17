@@ -331,12 +331,16 @@ function EditParkingSpotReservation({
   );
 }
 
-function ParkingSpotReservation({ spot, onEditClick }) {
+function ParkingSpotReservation({ spot, onEditClick, parkingSpots }) {
+  const parkingSpot = parkingSpots.find(
+    (parkingSpot) => parkingSpot.id === spot.item
+  );
+
   return (
     <div className="item">
       <div className="item-text">
         <FontAwesomeIcon icon={faSquareParking} />
-        {spot.item}
+        {parkingSpot ? parkingSpot.name : "Nieznany"}
       </div>
       <div className="item-text">{`${
         spot.constant
@@ -456,6 +460,7 @@ function ParkingPanel({
               onEditClick={() =>
                 handleEditClick(spot, "parking_spot_reservation")
               }
+              parkingSpots={parkingSpots}
             />
           ))}
         </div>
