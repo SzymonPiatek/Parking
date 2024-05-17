@@ -11,10 +11,13 @@ function HomePage() {
   const [selectedButton, setSelectedButton] = useState("parking");
   const [selectedFunction, setSelectedFunction] = useState("list");
   const [parkingSpots, setParkingSpots] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingSpot, setEditingSpot] = useState(null);
+  const [parkingSpotsReservations, setParkingSpotsReservations] = useState([]);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editingItemType, setEditingItemType] = useState(null);
 
-  const API_URL = "http://localhost:8000/api/parking_spots/";
+  const API_URL = "http://localhost:8000/api/";
+  const PARKING_URL = API_URL + "parking_spots/";
+  const PARKING_RESERVATIONS_URL = API_URL + "parking_spots_reservations/";
 
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -24,17 +27,44 @@ function HomePage() {
     setSelectedFunction(buttonName);
   };
 
-  const handleEditClick = (spot) => {
-    setEditingSpot(spot);
+  const handleEditClick = (spot, type) => {
+    setEditingItem(spot);
+    setEditingItemType(type);
   };
 
   const handleXMarkClick = () => {
-    setEditingSpot(null);
+    setEditingItem(null);
   };
 
-  const handleSaveClick = async (updatedSpot) => {
+  const handleSaveParkingSpotReservationClick = async (updatedSpot) => {
     try {
-      const response = await fetch(`${API_URL}${updatedSpot.id}/`, {
+      const response = await fetch(
+        `${PARKING_RESERVATIONS_URL}${updatedSpot.id}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedSpot),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const updatedSpots = parkingSpots.map((spot) =>
+        spot.id === updatedSpot.id ? updatedSpot : spot
+      );
+      setParkingSpotsReservations(updatedSpots);
+      setEditingItem(null);
+      setEditingItemType(null);
+    } catch (error) {
+      console.error("Error updating parking spot:", error);
+    }
+  };
+
+  const handleSaveParkingSpotClick = async (updatedSpot) => {
+    try {
+      const response = await fetch(`${PARKING_URL}${updatedSpot.id}/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -48,40 +78,66 @@ function HomePage() {
         spot.id === updatedSpot.id ? updatedSpot : spot
       );
       setParkingSpots(updatedSpots);
-      setEditingSpot(null);
+      setEditingItem(null);
+      setEditingItemType(null);
     } catch (error) {
       console.error("Error updating parking spot:", error);
     }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchParkingSpotsReservationsData = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(PARKING_RESERVATIONS_URL);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setParkingSpotsReservations(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    if (selectedButton === "parking" && selectedFunction === "manage") {
+      fetchParkingSpotsReservationsData();
+    }
+  }, [selectedButton, selectedFunction]);
+
+  useEffect(() => {
+    const fetchParkingSpotsData = async () => {
+      try {
+        const response = await fetch(PARKING_URL);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
         setParkingSpots(data);
-        setLoading(false);
       } catch (error) {
-        setLoading(false);
         console.error("Error fetching data:", error);
       }
     };
 
     if (selectedButton === "parking" && selectedFunction === "list") {
-      fetchData();
+      fetchParkingSpotsData();
     }
   }, [selectedButton, selectedFunction]);
 
   return (
     <div className="main-container">
-      {editingSpot && (
+      {editingItem && editingItemType === "parking_spot" && (
         <EditParkingSpot
-          spot={editingSpot}
+          spot={editingItem}
           handleXMarkClick={handleXMarkClick}
-          handleSaveClick={handleSaveClick}
+          handleSaveClick={handleSaveParkingSpotClick}
+        />
+      )}
+
+      {editingItem && editingItemType === "parking_spot_reservation" && (
+        <EditParkingSpotReservation
+          spot={editingItem}
+          handleXMarkClick={handleXMarkClick}
+          handleSaveClick={handleSaveParkingSpotReservationClick}
         />
       )}
 
@@ -103,6 +159,7 @@ function HomePage() {
         handleFunctionClick={handleFunctionClick}
         Button={Button}
         parkingSpots={parkingSpots}
+        parkingSpotsReservations={parkingSpotsReservations}
         handleEditClick={handleEditClick}
       />
     </div>
@@ -175,7 +232,77 @@ function EditParkingSpot({ spot, handleXMarkClick, handleSaveClick }) {
   );
 }
 
-function ParkingItem({ spot, onEditClick }) {
+function EditParkingSpotReservation({
+  spot,
+  handleXMarkClick,
+  handleSaveClick,
+}) {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const updatedSpot = { ...spot };
+    handleSaveClick(updatedSpot);
+  };
+
+  return (
+    <div className="edit-panel active">
+      <div className="edit-panel-container">
+        <div className="edit-panel-title">
+          <p>Edytuj rezerwację miejsca parkingowego</p>
+          <Button className="close" onClick={() => handleXMarkClick()}>
+            <FontAwesomeIcon icon={faCircleXmark} />
+          </Button>
+        </div>
+        <form className="form" onSubmit={handleSubmit}>
+          <div className="form-label">
+            <p>Miejsce parkingowe</p>
+            <input disabled value={spot.item} />
+          </div>
+          <div className="form-label">
+            <p>Użytkownik</p>
+            <input value={spot.user} />
+          </div>
+          <div className="form-label">
+            <p>Rezerwacja stała</p>
+            <input value={spot.constant} />
+          </div>
+          <div className="form-label">
+            <p>Data początkowa</p>
+            <input value={spot.start_date} />
+          </div>
+          <div className="form-label">
+            <p>Data końcowa</p>
+            <input value={spot.end_date} />
+          </div>
+          <Button type="submit">Zapisz</Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ParkingSpotReservation({ spot, onEditClick }) {
+  return (
+    <div className="item">
+      <div className="item-text">
+        <FontAwesomeIcon icon={faSquareParking} />
+        {spot.item}
+      </div>
+      <div className="item-text">{`${
+        spot.constant
+          ? "Rezerwacja stała"
+          : spot.start_date + " - " + spot.end_date
+      }`}</div>
+      <div className="item-text">{`${spot.user}`}</div>
+      <div className="item-functions">
+        <div className="item-functions-function" onClick={onEditClick}>
+          <FontAwesomeIcon icon={faEdit} /> Edytuj
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ParkingSpot({ spot, onEditClick }) {
   return (
     <div className="item">
       <div className="item-text">
@@ -223,6 +350,7 @@ function ParkingPanel({
   selectedFunction,
   handleFunctionClick,
   selectedButton,
+  parkingSpotsReservations,
   parkingSpots,
   handleEditClick,
 }) {
@@ -258,10 +386,25 @@ function ParkingPanel({
           }`}
         >
           {parkingSpots.map((spot) => (
-            <ParkingItem
+            <ParkingSpot
               spot={spot}
               key={spot.id}
-              onEditClick={() => handleEditClick(spot)}
+              onEditClick={() => handleEditClick({ spot }, "parking_spot")}
+            />
+          ))}
+        </div>
+        <div
+          className={`items-list ${
+            selectedFunction === "manage" ? "active" : ""
+          }`}
+        >
+          {parkingSpotsReservations.map((spot) => (
+            <ParkingSpotReservation
+              spot={spot}
+              key={spot.id}
+              onEditClick={() =>
+                handleEditClick({ spot }, "parking_spot_reservation")
+              }
             />
           ))}
         </div>
