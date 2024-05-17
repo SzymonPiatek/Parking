@@ -51,7 +51,7 @@ function HomePage() {
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      const updatedSpots = parkingSpots.map((spot) =>
+      const updatedSpots = parkingSpotsReservations.map((spot) =>
         spot.id === updatedSpot.id ? updatedSpot : spot
       );
       setParkingSpotsReservations(updatedSpots);
@@ -237,9 +237,43 @@ function EditParkingSpotReservation({
   handleXMarkClick,
   handleSaveClick,
 }) {
+  const [user, setUser] = useState(spot.user);
+  const [isConstant, setIsConstant] = useState(spot.constant);
+  const [isTemporary, setIsTemporary] = useState(!spot.constant);
+  const [startDate, setStartDate] = useState(spot.start_date);
+  const [endDate, setEndDate] = useState(spot.end_date);
+
+  const handleConstantChange = (event) => {
+    setIsConstant(event.target.checked);
+    setIsTemporary(!event.target.checked);
+  };
+
+  const handleTemporaryChange = (event) => {
+    setIsTemporary(event.target.checked);
+    setIsConstant(!event.target.checked);
+  };
+
+  const handleUserChange = (event) => {
+    setUser(event.target.value);
+  };
+
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const updatedSpot = { ...spot };
+    const updatedSpot = {
+      ...spot,
+      user,
+      constant: isConstant,
+      start_date: startDate,
+      end_date: endDate,
+    };
     handleSaveClick(updatedSpot);
   };
 
@@ -262,8 +296,25 @@ function EditParkingSpotReservation({
             <input value={spot.user} />
           </div>
           <div className="form-label">
-            <p>Rezerwacja stała</p>
-            <input value={spot.constant} />
+            <p>Typ rezerwacji</p>
+            <div className="form-label-line">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isConstant}
+                  onChange={handleConstantChange}
+                />
+                <span>Stała</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={isTemporary}
+                  onChange={handleTemporaryChange}
+                />
+                <span>Tymczasowa</span>
+              </label>
+            </div>
           </div>
           <div className="form-label">
             <p>Data początkowa</p>
