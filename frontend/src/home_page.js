@@ -389,7 +389,7 @@ function ParkingPanel({
             <ParkingSpot
               spot={spot}
               key={spot.id}
-              onEditClick={() => handleEditClick({ spot }, "parking_spot")}
+              onEditClick={() => handleEditClick(spot, "parking_spot")}
             />
           ))}
         </div>
@@ -403,7 +403,7 @@ function ParkingPanel({
               spot={spot}
               key={spot.id}
               onEditClick={() =>
-                handleEditClick({ spot }, "parking_spot_reservation")
+                handleEditClick(spot, "parking_spot_reservation")
               }
             />
           ))}
