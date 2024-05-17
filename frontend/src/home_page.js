@@ -8,6 +8,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 function HomePage() {
+  const [users, setUsers] = useState([]);
   const [selectedButton, setSelectedButton] = useState("parking");
   const [selectedFunction, setSelectedFunction] = useState("list");
   const [parkingSpots, setParkingSpots] = useState([]);
@@ -18,6 +19,7 @@ function HomePage() {
   const API_URL = "http://localhost:8000/api/";
   const PARKING_URL = API_URL + "parking_spots/";
   const PARKING_RESERVATIONS_URL = API_URL + "parking_spots_reservations/";
+  const USERS_URL = API_URL + "users/";
 
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -85,6 +87,24 @@ function HomePage() {
     }
   };
 
+  const fetchUsersData = async () => {
+    try {
+      const response = await fetch(USERS_URL);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await response.json();
+      setUsers(data);
+    } catch (error) {
+      console.error("Error fetching users data:", error);
+    }
+  };
+
+  const getUserNameById = (id) => {
+    const user = users.find((user) => user.id === id);
+    return user ? user.username : "Nie rozpoznano";
+  };
+
   useEffect(() => {
     const fetchParkingSpotsReservationsData = async () => {
       try {
@@ -101,6 +121,7 @@ function HomePage() {
 
     if (selectedButton === "parking" && selectedFunction === "manage") {
       fetchParkingSpotsReservationsData();
+      fetchUsersData();
     }
   }, [selectedButton, selectedFunction]);
 
@@ -120,6 +141,7 @@ function HomePage() {
 
     if (selectedButton === "parking" && selectedFunction === "list") {
       fetchParkingSpotsData();
+      fetchUsersData();
     }
   }, [selectedButton, selectedFunction]);
 
@@ -138,6 +160,7 @@ function HomePage() {
           spot={editingItem}
           handleXMarkClick={handleXMarkClick}
           handleSaveClick={handleSaveParkingSpotReservationClick}
+          getUserNameById={getUserNameById}
         />
       )}
 
@@ -157,13 +180,24 @@ function HomePage() {
         selectedFunction={selectedFunction}
         selectedButton={selectedButton}
         handleFunctionClick={handleFunctionClick}
+        handleEditClick={handleEditClick}
         Button={Button}
         parkingSpots={parkingSpots}
         parkingSpotsReservations={parkingSpotsReservations}
-        handleEditClick={handleEditClick}
+        getUserNameById={getUserNameById}
       />
     </div>
   );
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 function ChooseItem({ selectedButton, handleButtonClick }) {
@@ -236,6 +270,7 @@ function EditParkingSpotReservation({
   spot,
   handleXMarkClick,
   handleSaveClick,
+  getUserNameById,
 }) {
   const [user, setUser] = useState(spot.user);
   const [isConstant, setIsConstant] = useState(spot.constant);
@@ -269,7 +304,7 @@ function EditParkingSpotReservation({
     event.preventDefault();
     const updatedSpot = {
       ...spot,
-      user,
+      user: getUserNameById(user),
       constant: isConstant,
       start_date: startDate,
       end_date: endDate,
@@ -293,7 +328,7 @@ function EditParkingSpotReservation({
           </div>
           <div className="form-label">
             <p>Użytkownik</p>
-            <input value={spot.user} />
+            <input value={getUserNameById(spot.user)} />
           </div>
           <div className="form-label">
             <p>Typ rezerwacji</p>
@@ -331,7 +366,12 @@ function EditParkingSpotReservation({
   );
 }
 
-function ParkingSpotReservation({ spot, onEditClick, parkingSpots }) {
+function ParkingSpotReservation({
+  spot,
+  onEditClick,
+  parkingSpots,
+  getUserNameById,
+}) {
   const parkingSpot = parkingSpots.find(
     (parkingSpot) => parkingSpot.id === spot.item
   );
@@ -343,11 +383,11 @@ function ParkingSpotReservation({ spot, onEditClick, parkingSpots }) {
         {parkingSpot ? parkingSpot.name : "Nieznany"}
       </div>
       <div className="item-text">{`${
-        spot.constant
-          ? "Rezerwacja stała"
-          : spot.start_date + " - " + spot.end_date
+        spot.constant ? "Rezerwacja stała" : "Rezerwacja tymczasowa"
       }`}</div>
-      <div className="item-text">{`${spot.user}`}</div>
+      <div className="item-text">{formatDate(spot.start_date)}</div>
+      <div className="item-text">{formatDate(spot.end_date)}</div>
+      <div className="item-text">{getUserNameById(spot.user)}</div>
       <div className="item-functions">
         <div className="item-functions-function" onClick={onEditClick}>
           <FontAwesomeIcon icon={faEdit} /> Edytuj
@@ -364,7 +404,7 @@ function ParkingSpot({ spot, onEditClick }) {
         <FontAwesomeIcon icon={faSquareParking} />
         {`${spot.name}`}
       </div>
-      <div className="item-text">{`${spot.description || ""}`}</div>
+      <div className="item-text">{spot.description || ""}</div>
       <div className="item-functions">
         <div className="item-functions-function" onClick={onEditClick}>
           <FontAwesomeIcon icon={faEdit} /> Edytuj
@@ -408,6 +448,7 @@ function ParkingPanel({
   parkingSpotsReservations,
   parkingSpots,
   handleEditClick,
+  getUserNameById,
 }) {
   return (
     <div
@@ -461,6 +502,7 @@ function ParkingPanel({
                 handleEditClick(spot, "parking_spot_reservation")
               }
               parkingSpots={parkingSpots}
+              getUserNameById={getUserNameById}
             />
           ))}
         </div>
