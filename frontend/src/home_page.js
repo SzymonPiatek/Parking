@@ -28,6 +28,10 @@ function HomePage() {
     setEditingSpot(spot);
   };
 
+  const handleXMarkClick = () => {
+    setEditingSpot(null);
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -47,34 +51,33 @@ function HomePage() {
     if (selectedButton === "parking" && selectedFunction === "list") {
       fetchData();
     }
-  });
+  }, [selectedButton, selectedFunction]);
 
   return (
     <div className="main-container">
-      {/* #################### */}
-
       {editingSpot && (
         <div className="edit-panel active">
-          <EditParkingSpot spot={editingSpot} />
+          <EditParkingSpot
+            spot={editingSpot}
+            handleXMarkClick={handleXMarkClick}
+          />
         </div>
       )}
 
       <div className="main-choose">
         <Button
-          className={`button ${selectedButton === "parking" ? "selected" : ""}`}
+          className={`${selectedButton === "parking" ? "selected" : ""}`}
           onClick={() => handleButtonClick("parking")}
         >
           Parking
         </Button>
         <Button
-          className={`button ${selectedButton === "desk" ? "selected" : ""}`}
+          className={`${selectedButton === "desk" ? "selected" : ""}`}
           onClick={() => handleButtonClick("desk")}
         >
           Biurko
         </Button>
       </div>
-
-      {/* #################### */}
 
       <div
         className={`main-panel ${selectedButton === "desk" ? "active" : ""}`}
@@ -85,8 +88,6 @@ function HomePage() {
           Button={Button}
         />
       </div>
-
-      {/* #################### */}
 
       <div
         className={`main-panel ${selectedButton === "parking" ? "active" : ""}`}
@@ -120,7 +121,7 @@ function HomePage() {
   );
 }
 
-function EditParkingSpot({ spot }) {
+function EditParkingSpot({ spot, handleXMarkClick }) {
   const [description, setDescription] = useState(spot.description);
   const isDescriptionUnchanged =
     description === spot.description || description === "";
@@ -133,7 +134,9 @@ function EditParkingSpot({ spot }) {
     <div className="edit-panel-container">
       <div className="edit-panel-title">
         <p>Edytuj miejsce parkingowe</p>
-        <FontAwesomeIcon icon={faCircleXmark} />
+        <Button className="close" onClick={() => handleXMarkClick()}>
+          <FontAwesomeIcon icon={faCircleXmark} />
+        </Button>
       </div>
       <form className="form">
         <div className="form-label">
@@ -149,9 +152,7 @@ function EditParkingSpot({ spot }) {
             onChange={handleDescriptionChange}
           />
         </div>
-        <Button className="button" disabled={isDescriptionUnchanged}>
-          Zapisz
-        </Button>
+        <Button disabled={isDescriptionUnchanged}>Zapisz</Button>
       </form>
     </div>
   );
@@ -180,19 +181,19 @@ function DeskPanel({ selectedFunction, handleFunctionClick }) {
   return (
     <div className="main-panel-buttons">
       <Button
-        className={`button ${selectedFunction === "list" ? "selected" : ""}`}
+        className={`${selectedFunction === "list" ? "selected" : ""}`}
         onClick={() => handleFunctionClick("list")}
       >
         Lista biurek
       </Button>
       <Button
-        className={`button ${selectedFunction === "manage" ? "selected" : ""}`}
+        className={`${selectedFunction === "manage" ? "selected" : ""}`}
         onClick={() => handleFunctionClick("manage")}
       >
         Zarządzaj rezerwacjami
       </Button>
       <Button
-        className={`button ${selectedFunction === "add" ? "selected" : ""}`}
+        className={`${selectedFunction === "add" ? "selected" : ""}`}
         onClick={() => handleFunctionClick("add")}
       >
         Dodaj rezerwację
@@ -205,19 +206,19 @@ function ParkingPanel({ selectedFunction, handleFunctionClick }) {
   return (
     <div className="main-panel-buttons">
       <Button
-        className={`button ${selectedFunction === "list" ? "selected" : ""}`}
+        className={`${selectedFunction === "list" ? "selected" : ""}`}
         onClick={() => handleFunctionClick("list")}
       >
         Lista miejsc parkingowych
       </Button>
       <Button
-        className={`button ${selectedFunction === "manage" ? "selected" : ""}`}
+        className={`${selectedFunction === "manage" ? "selected" : ""}`}
         onClick={() => handleFunctionClick("manage")}
       >
         Zarządzaj rezerwacjami
       </Button>
       <Button
-        className={`button ${selectedFunction === "add" ? "selected" : ""}`}
+        className={`${selectedFunction === "add" ? "selected" : ""}`}
         onClick={() => handleFunctionClick("add")}
       >
         Dodaj rezerwację

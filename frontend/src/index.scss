@@ -247,6 +247,15 @@ body {
         font-size: 2rem;
       }
     }
+
+    .button {
+      &.close {
+        background: none;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+      }
+    }
   }
 
   .form {
