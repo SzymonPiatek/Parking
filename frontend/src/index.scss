@@ -147,11 +147,6 @@ body {
       border: 1px solid #fff;
       border-radius: 12px;
       overflow-y: auto;
-      display: none;
-
-      &.active {
-        display: flex;
-      }
 
       .items-list {
         flex: 1;
@@ -178,7 +173,6 @@ body {
 
     &:hover {
       background: lighten($color-two, 10);
-      transform: scale(1.01);
       will-change: transform;
     }
 
