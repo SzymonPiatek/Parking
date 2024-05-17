@@ -32,6 +32,28 @@ function HomePage() {
     setEditingSpot(null);
   };
 
+  const handleSaveClick = async (updatedSpot) => {
+    try {
+      const response = await fetch(`${API_URL}${updatedSpot.id}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedSpot),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const updatedSpots = parkingSpots.map((spot) =>
+        spot.id === updatedSpot.id ? updatedSpot : spot
+      );
+      setParkingSpots(updatedSpots);
+      setEditingSpot(null);
+    } catch (error) {
+      console.error("Error updating parking spot:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,7 +66,7 @@ function HomePage() {
         setLoading(false);
       } catch (error) {
         setLoading(false);
-        throw new Error(error);
+        console.error("Error fetching data:", error);
       }
     };
 
@@ -59,6 +81,7 @@ function HomePage() {
         <EditParkingSpot
           spot={editingSpot}
           handleXMarkClick={handleXMarkClick}
+          handleSaveClick={handleSaveClick}
         />
       )}
 
@@ -105,13 +128,19 @@ function ChooseItem({ selectedButton, handleButtonClick }) {
   );
 }
 
-function EditParkingSpot({ spot, handleXMarkClick }) {
+function EditParkingSpot({ spot, handleXMarkClick, handleSaveClick }) {
   const [description, setDescription] = useState(spot.description);
   const isDescriptionUnchanged =
     description === spot.description || description === "";
 
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const updatedSpot = { ...spot, description };
+    handleSaveClick(updatedSpot);
   };
 
   return (
@@ -123,7 +152,7 @@ function EditParkingSpot({ spot, handleXMarkClick }) {
             <FontAwesomeIcon icon={faCircleXmark} />
           </Button>
         </div>
-        <form className="form">
+        <form className="form" onSubmit={handleSubmit}>
           <div className="form-label">
             <p>Nazwa</p>
             <input disabled value={spot.name} />
@@ -137,7 +166,9 @@ function EditParkingSpot({ spot, handleXMarkClick }) {
               onChange={handleDescriptionChange}
             />
           </div>
-          <Button disabled={isDescriptionUnchanged}>Zapisz</Button>
+          <Button type="submit" disabled={isDescriptionUnchanged}>
+            Zapisz
+          </Button>
         </form>
       </div>
     </div>
