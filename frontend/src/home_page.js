@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "./widgets";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faEdit,
-  faSquareParking,
-  faCircleXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
 function HomePage() {
   const [users, setUsers] = useState([]);
@@ -219,10 +215,35 @@ function ChooseItem({ selectedButton, handleButtonClick }) {
   );
 }
 
+function DeskPanel({ selectedFunction, handleFunctionClick, selectedButton }) {
+  return (
+    <div className={`main-panel ${selectedButton === "desk" ? "active" : ""}`}>
+      <div className="main-panel-buttons">
+        <Button
+          className={`${selectedFunction === "list" ? "selected" : ""}`}
+          onClick={() => handleFunctionClick("list")}
+        >
+          Lista biurek
+        </Button>
+        <Button
+          className={`${selectedFunction === "manage" ? "selected" : ""}`}
+          onClick={() => handleFunctionClick("manage")}
+        >
+          Zarządzaj rezerwacjami
+        </Button>
+        <Button
+          className={`${selectedFunction === "add" ? "selected" : ""}`}
+          onClick={() => handleFunctionClick("add")}
+        >
+          Dodaj rezerwację
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function EditParkingSpot({ spot, handleXMarkClick, handleSaveClick }) {
   const [description, setDescription] = useState(spot.description);
-  const isDescriptionUnchanged =
-    description === spot.description || description === "";
 
   const handleDescriptionChange = (event) => {
     setDescription(event.target.value);
@@ -257,9 +278,7 @@ function EditParkingSpot({ spot, handleXMarkClick, handleSaveClick }) {
               onChange={handleDescriptionChange}
             />
           </div>
-          <Button type="submit" disabled={isDescriptionUnchanged}>
-            Zapisz
-          </Button>
+          <Button type="submit">Zapisz</Button>
         </form>
       </div>
     </div>
@@ -304,7 +323,7 @@ function EditParkingSpotReservation({
     event.preventDefault();
     const updatedSpot = {
       ...spot,
-      user: getUserNameById(user),
+      user: user,
       constant: isConstant,
       start_date: startDate,
       end_date: endDate,
@@ -328,7 +347,7 @@ function EditParkingSpotReservation({
           </div>
           <div className="form-label">
             <p>Użytkownik</p>
-            <input value={getUserNameById(spot.user)} />
+            <input value={user} onChange={handleUserChange} />
           </div>
           <div className="form-label">
             <p>Typ rezerwacji</p>
@@ -353,89 +372,22 @@ function EditParkingSpotReservation({
           </div>
           <div className="form-label">
             <p>Data początkowa</p>
-            <input value={spot.start_date} />
+            <input
+              type="datetime-local"
+              value={formatDate(startDate)}
+              onChange={handleStartDateChange}
+            />
           </div>
           <div className="form-label">
             <p>Data końcowa</p>
-            <input value={spot.end_date} />
+            <input
+              type="datetime-local"
+              value={formatDate(endDate)}
+              onChange={handleEndDateChange}
+            />
           </div>
           <Button type="submit">Zapisz</Button>
         </form>
-      </div>
-    </div>
-  );
-}
-
-function ParkingSpotReservation({
-  spot,
-  onEditClick,
-  parkingSpots,
-  getUserNameById,
-}) {
-  const parkingSpot = parkingSpots.find(
-    (parkingSpot) => parkingSpot.id === spot.item
-  );
-
-  return (
-    <div className="item">
-      <div className="item-text">
-        <FontAwesomeIcon icon={faSquareParking} />
-        {parkingSpot ? parkingSpot.name : "Nieznany"}
-      </div>
-      <div className="item-text">{`${
-        spot.constant ? "Rezerwacja stała" : "Rezerwacja tymczasowa"
-      }`}</div>
-      <div className="item-text">{formatDate(spot.start_date)}</div>
-      <div className="item-text">{formatDate(spot.end_date)}</div>
-      <div className="item-text">{getUserNameById(spot.user)}</div>
-      <div className="item-functions">
-        <div className="item-functions-function" onClick={onEditClick}>
-          <FontAwesomeIcon icon={faEdit} /> Edytuj
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ParkingSpot({ spot, onEditClick }) {
-  return (
-    <div className="item">
-      <div className="item-text">
-        <FontAwesomeIcon icon={faSquareParking} />
-        {`${spot.name}`}
-      </div>
-      <div className="item-text">{spot.description || ""}</div>
-      <div className="item-functions">
-        <div className="item-functions-function" onClick={onEditClick}>
-          <FontAwesomeIcon icon={faEdit} /> Edytuj
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DeskPanel({ selectedFunction, handleFunctionClick, selectedButton }) {
-  return (
-    <div className={`main-panel ${selectedButton === "desk" ? "active" : ""}`}>
-      <div className="main-panel-buttons">
-        <Button
-          className={`${selectedFunction === "list" ? "selected" : ""}`}
-          onClick={() => handleFunctionClick("list")}
-        >
-          Lista biurek
-        </Button>
-        <Button
-          className={`${selectedFunction === "manage" ? "selected" : ""}`}
-          onClick={() => handleFunctionClick("manage")}
-        >
-          Zarządzaj rezerwacjami
-        </Button>
-        <Button
-          className={`${selectedFunction === "add" ? "selected" : ""}`}
-          onClick={() => handleFunctionClick("add")}
-        >
-          Dodaj rezerwację
-        </Button>
       </div>
     </div>
   );
