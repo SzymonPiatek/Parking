@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Button from "./widgets";
+import { formatDate } from "./functions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 
@@ -80,6 +81,33 @@ function HomePage() {
       setEditingItemType(null);
     } catch (error) {
       console.error("Error updating parking spot:", error);
+    }
+  };
+
+  const handleSaveNewReservationClick = async (newReservation) => {
+    try {
+      const response = await fetch(PARKING_RESERVATIONS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newReservation),
+      });
+
+      console.log(response);
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await response.json();
+
+      setParkingSpotsReservations([...parkingSpotsReservations, data]);
+
+      alert("Rezerwacja została pomyślnie zapisana!");
+    } catch (error) {
+      console.error("Error saving reservation:", error);
+      alert("Wystąpił błąd podczas zapisywania rezerwacji");
     }
   };
 
@@ -181,19 +209,10 @@ function HomePage() {
         parkingSpots={parkingSpots}
         parkingSpotsReservations={parkingSpotsReservations}
         getUserNameById={getUserNameById}
+        handleSaveNewReservationClick={handleSaveNewReservationClick}
       />
     </div>
   );
-}
-
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  const hours = String(date.getHours()).padStart(2, "0");
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
 function ChooseItem({ selectedButton, handleButtonClick }) {
@@ -487,6 +506,98 @@ function ParkingPanelManage({
   );
 }
 
+function ParkingPanelAdd({ selectedFunction, handleSaveNewReservationClick }) {
+  const [spotId, setSpotId] = useState("");
+  const [user, setUser] = useState("");
+  const [isConstant, setIsConstant] = useState(false);
+  const [isTemporary, setIsTemporary] = useState(true);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const handleConstantChange = (event) => {
+    setIsConstant(event.target.checked);
+    setIsTemporary(!event.target.checked);
+  };
+
+  const handleTemporaryChange = (event) => {
+    setIsTemporary(event.target.checked);
+    setIsConstant(!event.target.checked);
+  };
+
+  const handleUserChange = (event) => {
+    setUser(event.target.value);
+  };
+
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
+  };
+
+  const handleSpotChange = (event) => {
+    setSpotId(event.target.value);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const newReservation = {
+      item: spotId,
+      user,
+      constant: isConstant,
+      start_date: startDate,
+      end_date: endDate,
+    };
+    handleSaveNewReservationClick(newReservation);
+  };
+
+  return (
+    <div className={`items-list ${selectedFunction === "add" ? "active" : ""}`}>
+      <form className="form" onSubmit={handleSubmit}>
+        <div className="form-label">
+          <p>Miejsce parkingowe</p>
+          <input value={spotId} onChange={handleSpotChange} />
+        </div>
+        <div className="form-label">
+          <p>Użytkownik</p>
+          <input onChange={handleUserChange} />
+        </div>
+        <div className="form-label">
+          <p>Typ rezerwacji</p>
+          <div className="form-label-line">
+            <label>
+              <input
+                type="checkbox"
+                checked={isConstant}
+                onChange={handleConstantChange}
+              />
+              <span>Stała</span>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={isTemporary}
+                onChange={handleTemporaryChange}
+              />
+              <span>Tymczasowa</span>
+            </label>
+          </div>
+        </div>
+        <div className="form-label">
+          <p>Data początkowa</p>
+          <input type="datetime-local" onChange={handleStartDateChange} />
+        </div>
+        <div className="form-label">
+          <p>Data końcowa</p>
+          <input type="datetime-local" onChange={handleEndDateChange} />
+        </div>
+        <Button type="submit">Zapisz</Button>
+      </form>
+    </div>
+  );
+}
+
 function ParkingPanel({
   selectedFunction,
   handleFunctionClick,
@@ -495,6 +606,7 @@ function ParkingPanel({
   parkingSpots,
   handleEditClick,
   getUserNameById,
+  handleSaveNewReservationClick,
 }) {
   return (
     <div
@@ -515,6 +627,10 @@ function ParkingPanel({
           parkingSpotsReservations={parkingSpotsReservations}
           handleEditClick={handleEditClick}
           getUserNameById={getUserNameById}
+        />
+        <ParkingPanelAdd
+          selectedFunction={selectedFunction}
+          handleSaveNewReservationClick={handleSaveNewReservationClick}
         />
       </div>
     </div>
