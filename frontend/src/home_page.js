@@ -194,6 +194,7 @@ function HomePage() {
           handleSaveClick={handleSaveParkingSpotReservationClick}
           getUserNameById={getUserNameById}
           getParkingSpotNameById={getParkingSpotNameById}
+          users={users}
         />
       )}
 

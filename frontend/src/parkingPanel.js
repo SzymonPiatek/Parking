@@ -53,8 +53,9 @@ export function EditParkingSpotReservation({
   handleSaveClick,
   getUserNameById,
   getParkingSpotNameById,
+  users,
 }) {
-  const [user, setUser] = useState(spot.user);
+  const [selectedUser, setSelectedUser] = useState(spot.user);
   const [isConstant, setIsConstant] = useState(spot.constant);
   const [isTemporary, setIsTemporary] = useState(!spot.constant);
   const [startDate, setStartDate] = useState(spot.start_date);
@@ -71,7 +72,7 @@ export function EditParkingSpotReservation({
   };
 
   const handleUserChange = (event) => {
-    setUser(event.target.value);
+    setSelectedUser(event.target.value);
   };
 
   const handleStartDateChange = (event) => {
@@ -86,7 +87,7 @@ export function EditParkingSpotReservation({
     event.preventDefault();
     const updatedSpot = {
       ...spot,
-      user: user,
+      user: selectedUser,
       constant: isConstant,
       start_date: startDate,
       end_date: endDate,
@@ -106,11 +107,17 @@ export function EditParkingSpotReservation({
         <form className="form" onSubmit={handleSubmit}>
           <div className="form-label">
             <p>Miejsce parkingowe</p>
-            <input disabled value={spot.item} />
+            <input disabled value={getParkingSpotNameById(spot.item)} />
           </div>
           <div className="form-label">
             <p>Użytkownik</p>
-            <input value={user} onChange={handleUserChange} />
+            <select value={selectedUser} onChange={handleUserChange}>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.username}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="form-label">
             <p>Typ rezerwacji</p>
@@ -258,7 +265,6 @@ function ParkingPanelAdd({
   handleSaveNewParkingReservationClick,
   users,
   parkingSpots,
-  getParkingSpotNameById,
 }) {
   const [spot, setSpot] = useState("");
   const [selectedUser, setSelectedUser] = useState("");
