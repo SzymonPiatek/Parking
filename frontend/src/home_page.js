@@ -441,6 +441,100 @@ function DeskPanel({ selectedFunction, handleFunctionClick, selectedButton }) {
   );
 }
 
+function ParkingPanelButtons({ selectedFunction, handleFunctionClick }) {
+  return (
+    <div className="main-panel-buttons">
+      <Button
+        className={`${selectedFunction === "list" ? "selected" : ""}`}
+        onClick={() => handleFunctionClick("list")}
+      >
+        Lista miejsc parkingowych
+      </Button>
+      <Button
+        className={`${selectedFunction === "manage" ? "selected" : ""}`}
+        onClick={() => handleFunctionClick("manage")}
+      >
+        Zarządzaj rezerwacjami
+      </Button>
+      <Button
+        className={`${selectedFunction === "add" ? "selected" : ""}`}
+        onClick={() => handleFunctionClick("add")}
+      >
+        Dodaj rezerwację
+      </Button>
+    </div>
+  );
+}
+
+function ParkingPanelList({ selectedFunction, parkingSpots, handleEditClick }) {
+  return (
+    <div
+      className={`items-list ${selectedFunction === "list" ? "active" : ""}`}
+    >
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nazwa</th>
+            <th>Opis</th>
+          </tr>
+        </thead>
+        <tbody>
+          {parkingSpots.map((spot) => (
+            <tr
+              key={spot.id}
+              onClick={() => handleEditClick(spot, "parking_spot")}
+            >
+              <td>{spot.id}</td>
+              <td>{spot.name}</td>
+              <td>{spot.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ParkingPanelManage({
+  selectedFunction,
+  parkingSpotsReservations,
+  handleEditClick,
+  getUserNameById,
+}) {
+  return (
+    <div
+      className={`items-list ${selectedFunction === "manage" ? "active" : ""}`}
+    >
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Rodzaj</th>
+            <th>Użytkownik</th>
+            <th>Początek</th>
+            <th>Koniec</th>
+          </tr>
+        </thead>
+        <tbody>
+          {parkingSpotsReservations.map((spot) => (
+            <tr
+              key={spot.id}
+              onClick={() => handleEditClick(spot, "parking_spot_reservation")}
+            >
+              <td>{spot.id}</td>
+              <td>{spot.constant ? "Stała" : "Tymczasowa"}</td>
+              <td>{getUserNameById(spot.user)}</td>
+              <td>{formatDate(spot.start_date)}</td>
+              <td>{formatDate(spot.end_date)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function ParkingPanel({
   selectedFunction,
   handleFunctionClick,
@@ -454,58 +548,22 @@ function ParkingPanel({
     <div
       className={`main-panel ${selectedButton === "parking" ? "active" : ""}`}
     >
-      <div className="main-panel-buttons">
-        <Button
-          className={`${selectedFunction === "list" ? "selected" : ""}`}
-          onClick={() => handleFunctionClick("list")}
-        >
-          Lista miejsc parkingowych
-        </Button>
-        <Button
-          className={`${selectedFunction === "manage" ? "selected" : ""}`}
-          onClick={() => handleFunctionClick("manage")}
-        >
-          Zarządzaj rezerwacjami
-        </Button>
-        <Button
-          className={`${selectedFunction === "add" ? "selected" : ""}`}
-          onClick={() => handleFunctionClick("add")}
-        >
-          Dodaj rezerwację
-        </Button>
-      </div>
-
+      <ParkingPanelButtons
+        selectedFunction={selectedFunction}
+        handleFunctionClick={handleFunctionClick}
+      />
       <div className="main-panel-function">
-        <div
-          className={`items-list ${
-            selectedFunction === "list" ? "active" : ""
-          }`}
-        >
-          {parkingSpots.map((spot) => (
-            <ParkingSpot
-              spot={spot}
-              key={spot.id}
-              onEditClick={() => handleEditClick(spot, "parking_spot")}
-            />
-          ))}
-        </div>
-        <div
-          className={`items-list ${
-            selectedFunction === "manage" ? "active" : ""
-          }`}
-        >
-          {parkingSpotsReservations.map((spot) => (
-            <ParkingSpotReservation
-              spot={spot}
-              key={spot.id}
-              onEditClick={() =>
-                handleEditClick(spot, "parking_spot_reservation")
-              }
-              parkingSpots={parkingSpots}
-              getUserNameById={getUserNameById}
-            />
-          ))}
-        </div>
+        <ParkingPanelList
+          parkingSpots={parkingSpots}
+          selectedFunction={selectedFunction}
+          handleEditClick={handleEditClick}
+        />
+        <ParkingPanelManage
+          selectedFunction={selectedFunction}
+          parkingSpotsReservations={parkingSpotsReservations}
+          handleEditClick={handleEditClick}
+          getUserNameById={getUserNameById}
+        />
       </div>
     </div>
   );
